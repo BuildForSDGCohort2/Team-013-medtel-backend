@@ -1,4 +1,4 @@
-from app import sqlalchemy as db, create_app
+from app import sqlalchemy as db
 from json import JSONEncoder
 from datetime import datetime
 from flask_bcrypt import generate_password_hash, check_password_hash
@@ -11,7 +11,7 @@ user_role = db.Table(
               primary_key=True),
     db.Column("role_id", db.Integer,
               db.ForeignKey("roles.id"),
-              
+
               primary_key=True)
 )
 
@@ -21,7 +21,7 @@ class Role(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    users = db.relationship("User", 
+    users = db.relationship("User",
                             secondary=user_role,
                             back_populates="roles",
                             lazy=True)
@@ -36,7 +36,7 @@ class Role(db.Model):
 
     def update(self):
         db.session.commit()
-    
+
     @property
     def serialize(self):
 
@@ -44,13 +44,15 @@ class Role(db.Model):
             "id": self.id,
             "name": self.name,
             "users": self.users
-    }
+        }
+
 
 class User(db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), index=True, unique=True)
+    public_id = db.Column(db.String(20), unique=True)
+    name = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     roles = db.relationship("Role",
@@ -58,7 +60,6 @@ class User(db.Model):
                             back_populates="users",
                             cascade="all, delete",
                             lazy=True)
-
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -68,7 +69,7 @@ class User(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-    
+
     def insert(self):
         db.session.add(self)
         db.session.commit()
