@@ -1,0 +1,65 @@
+import os
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.utils import secure_filename
+from flask_bcrypt import Bcrypt
+from flask_migrate import Migrate
+from .config import Config
+
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv())
+
+sqlalchemy = SQLAlchemy()
+migrate = Migrate()
+bcrypt = Bcrypt()
+
+"""
+Create a flask app instance with given
+configuration object, initialize extentions
+and register flask blueprints
+"""
+def create_app(config_obj=None):
+    app = Flask(__name__)
+
+    if config_obj is None:
+        app.config.from_object(config)
+    else:
+        app.config.from_object(config_obj)
+
+
+    # initialize extensions and register blueprints
+    initialize_extentions(app)
+    register_blueprints(app)
+
+    # Create database tables if they do not exist
+    # within flask application context
+    with app.app_context():
+        sqlalchemy.create_all()
+    
+    return app
+
+def initialize_extentions(app):
+    bcrypt.init_app(app)
+    sqlalchemy.init_app(app)
+    migrate.init_app(app, sqlalchemy)
+
+
+def register_blueprints(app):
+    from app.admin import admin
+    from app.doctor import doctor
+    from app.user import user
+
+    app.register_blueprint(admin)
+    app.register_blueprint(user)
+    app.register_blueprint(doctor)
+
+
+# Custom error handlers
+
+"""def page_not_found(e):
+  return jsonify
+def internal_Server_Error(e):
+  return render_template('errors/500.html'), 500
+def Bad_Request_Error(e):
+  return render_template('errors/400.html'), 400"""
