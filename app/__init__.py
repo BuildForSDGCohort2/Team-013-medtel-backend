@@ -5,20 +5,27 @@ from werkzeug.utils import secure_filename
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
 from .config import Config
-
+from flask_restplus import Api
+from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
 
 sqlalchemy = SQLAlchemy()
-migrate = Migrate()
+migrate = Migrate(compare_type=True)
 bcrypt = Bcrypt()
+api = Api()
+jwt = JWTManager()
 
+config = Config()
 """
 Create a flask app instance with given
 configuration object, initialize extentions
 and register flask blueprints
 """
+
+
 def create_app(config_obj=None):
     app = Flask(__name__)
 
@@ -26,7 +33,6 @@ def create_app(config_obj=None):
         app.config.from_object(config)
     else:
         app.config.from_object(config_obj)
-
 
     # initialize extensions and register blueprints
     initialize_extentions(app)
@@ -36,13 +42,17 @@ def create_app(config_obj=None):
     # within flask application context
     with app.app_context():
         sqlalchemy.create_all()
-    
+
     return app
 
+
 def initialize_extentions(app):
+    jwt.init_app(app)
     bcrypt.init_app(app)
     sqlalchemy.init_app(app)
     migrate.init_app(app, sqlalchemy)
+    api.init_app(app)
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 
 def register_blueprints(app):
