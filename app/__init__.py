@@ -15,10 +15,10 @@ load_dotenv(find_dotenv())
 sqlalchemy = SQLAlchemy()
 migrate = Migrate(compare_type=True)
 bcrypt = Bcrypt()
-api = Api()
 jwt = JWTManager()
-
+api = Api()
 config = Config()
+
 """
 Create a flask app instance with given
 configuration object, initialize extentions
@@ -42,6 +42,7 @@ def create_app(config_obj=None):
     # within flask application context
     with app.app_context():
         sqlalchemy.create_all()
+    
 
     return app
 
@@ -51,25 +52,13 @@ def initialize_extentions(app):
     bcrypt.init_app(app)
     sqlalchemy.init_app(app)
     migrate.init_app(app, sqlalchemy)
-    api.init_app(app)
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 
 def register_blueprints(app):
     from app.admin import admin
-    from app.doctor import doctor
-    from app.user import user
+    from app.api import api
 
     app.register_blueprint(admin)
-    app.register_blueprint(user)
-    app.register_blueprint(doctor)
+    app.register_blueprint(api)
 
-
-# Custom error handlers
-
-"""def page_not_found(e):
-  return jsonify
-def internal_Server_Error(e):
-  return render_template('errors/500.html'), 500
-def Bad_Request_Error(e):
-  return render_template('errors/400.html'), 400"""

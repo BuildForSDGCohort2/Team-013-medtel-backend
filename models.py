@@ -2,7 +2,10 @@ from app import sqlalchemy as db
 from json import JSONEncoder
 from datetime import datetime
 from flask_bcrypt import generate_password_hash, check_password_hash
+from random import randint
 
+# Generate a public id to prevent exposure of user id in database
+default_public_id = randint(100, 100000)
 
 user_role = db.Table(
     "user_role",
@@ -47,14 +50,16 @@ class Role(db.Model):
         }
 
 
+
 class User(db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
-    public_id = db.Column(db.String(20), unique=True)
+    public_id = db.Column(db.String(20), unique=True, default=default_public_id)
     name = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
+    phone_number = db.Column(db.String(20))
     roles = db.relationship("Role",
                             secondary=user_role,
                             back_populates="users",
@@ -65,7 +70,7 @@ class User(db.Model):
         return '<User {}>'.format(self.username)
 
     def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+        self.password_hash = generate_password_hash(password).decode('utf-8')
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
@@ -85,7 +90,7 @@ class User(db.Model):
     def serialize(self):
         role = Role.query.filter(Role.users.any(id=self.id)).first()
         return {
-            "id": self.id,
+            "id": self.public_id,
             "name": self.username,
             "email": self.email,
             "role": role.name if role else 'No role assigned'
