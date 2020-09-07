@@ -91,7 +91,7 @@ class User(db.Model):
         role = Role.query.filter(Role.users.any(id=self.id)).first()
         return {
             "id": self.public_id,
-            "name": self.username,
+            "name": self.name,
             "email": self.email,
             "role": role.name if role else 'No role assigned'
         }
