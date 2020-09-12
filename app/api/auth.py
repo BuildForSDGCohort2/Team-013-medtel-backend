@@ -66,7 +66,7 @@ def new_user():
     user_exist = User.query.filter_by(email=email).first()
 
     if user_exist:
-        raise ExistingResource(f"""User with email {email} 
+        raise ExistingResource(f"""User with email {email}
                                           and number {phone} exist!""")
     else:
         user = User(name=name,
@@ -78,22 +78,21 @@ def new_user():
     try:
         User.insert(user)
         user_r = user_role.insert().values(role_id=role_id,
-                                            user_id=user.public_id)
+                                           user_id=user.public_id)
         db.session.execute(user_r)
         db.session.commit()
     except Exception as e:
         print(e)
         db.session.rollback()
-        raise InternalServerError({
-                                   "error": """Database commit error.
-                                                Could not process your request!"""})
+        raise InternalServerError(
+            "Database commit error. Could not process your request!")
     access_token = create_access_token(
-                            identity=user.id,
-                            expires_delta=timedelta(hours=24))
+        identity=user.id,
+        expires_delta=timedelta(hours=24))
 
     return jsonify({"success": True,
                     "data": {
                         "user": user.serialize,
                         "access_token": access_token
-                        }
+                    }
                     }), 201

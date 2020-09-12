@@ -1,4 +1,4 @@
-from flask import jsonify,request
+from flask import jsonify, request
 from . import api
 from models import db, User, user_role, Role, Address, user_address
 from Exceptions import NotFound
@@ -64,7 +64,7 @@ def update_user_profile(user_id):
         address = Address(city=city, state=state, country=country)
         Address.insert(address)
         user_addr = user_address.insert().values(address_id=address.id,
-                                            user_id=user.public_id)
+                                                 user_id=user.public_id)
         db.session.execute(user_addr)
         db.session.commit()
 
@@ -78,7 +78,7 @@ def update_user_profile(user_id):
     User.update(user)
     user_data = [user.serialize]
     return jsonify({
-         "success": True,
-         "data": user_data
+        "success": True,
+        "data": user_data
 
-     })
+    })

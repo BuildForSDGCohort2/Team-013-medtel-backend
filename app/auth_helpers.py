@@ -12,6 +12,7 @@ from Exceptions import (NotFound,
                         ExistingResource, Forbiden,
                         InternalServerError)
 
+
 def admin_required(role_name):
     def is_auth(func):
         @wraps(func)

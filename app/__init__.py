@@ -42,7 +42,6 @@ def create_app(config_obj=None):
     # within flask application context
     with app.app_context():
         sqlalchemy.create_all()
-    
 
     return app
 
@@ -61,4 +60,3 @@ def register_blueprints(app):
 
     app.register_blueprint(admin)
     app.register_blueprint(api)
-

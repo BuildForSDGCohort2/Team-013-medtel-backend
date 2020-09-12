@@ -25,7 +25,6 @@ user_address = db.Table(
 )
 
 
-
 class Role(db.Model):
     __tablename__ = "roles"
 
@@ -57,7 +56,6 @@ class Role(db.Model):
         }
 
 
-
 class User(db.Model):
     __tablename__ = "users"
 
@@ -65,6 +63,7 @@ class User(db.Model):
     public_id = db.Column(db.Integer, unique=True)
     name = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
+    profile_image = db.Column(db.String)
     password_hash = db.Column(db.String)
     phone_number = db.Column(db.String(20))
     roles = db.relationship("Role",
@@ -73,10 +72,10 @@ class User(db.Model):
                             cascade="all, delete",
                             lazy=True)
     addresses = db.relationship("Address",
-                            secondary=user_address,
-                            back_populates="users",
-                            cascade="all, delete",
-                            lazy=True)
+                                secondary=user_address,
+                                back_populates="users",
+                                cascade="all, delete",
+                                lazy=True)
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -101,7 +100,7 @@ class User(db.Model):
     @property
     def serialize(self):
         addresses = Address.query.filter(
-                Address.users.any(public_id=self.public_id)).all()
+            Address.users.any(public_id=self.public_id)).all()
         return {
             "id": self.public_id,
             "name": self.name,
@@ -109,9 +108,10 @@ class User(db.Model):
             "addresses": [address.serialize for address in addresses]
         }
 
+
 class Address(db.Model):
-    __tablename__="addresses"
-    
+    __tablename__ = "addresses"
+
     id = db.Column(db.Integer, primary_key=True)
     city = db.Column(db.String)
     state = db.Column(db.String)
@@ -134,7 +134,7 @@ class Address(db.Model):
 
     @property
     def serialize(self):
-        
+
         return {
             "id": self.id,
             "city": self.city,

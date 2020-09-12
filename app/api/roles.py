@@ -22,7 +22,7 @@ def get_role(role_id):
 
     if not role:
         raise NotFound("Role not found")
-    
+
     return jsonify(user.serialize)
 
 
@@ -31,7 +31,7 @@ def add_role():
     role_name = request.json.get("name")
 
     role_exist = Role.query.filter_by(name=role_name).first()
-    
+
     if role_exist:
         raise ExistingResource(f"Role with name {role_name} exists!")
     role = Role(name=role_name)
@@ -41,7 +41,7 @@ def add_role():
     except Exception as e:
         print(e)
         db.session.rollback()
-        raise InternalServerError("""Unexpected error occured! 
+        raise InternalServerError("""Unexpected error occured!
                                     Could not create role.""")
 
     return jsonify(role.serialize)
