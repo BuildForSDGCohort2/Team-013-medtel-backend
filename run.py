@@ -10,6 +10,7 @@ config = Config()
 
 app = create_app(config)
 
+
 @app.errorhandler(NotFound)
 @app.errorhandler(Forbiden)
 @app.errorhandler(MethodNotAllowed)
@@ -20,6 +21,7 @@ def api_error(error):
     payload['message'] = error.message
     payload['success'] = error.success
     return jsonify(payload), error.status_code
+
 
 if __name__ == "__main__":
     app.run()

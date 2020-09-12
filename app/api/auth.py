@@ -6,6 +6,7 @@ from flask_jwt_extended import (
     create_access_token,
     get_jwt_identity
 )
+from random import randint
 
 from app import sqlalchemy as db
 from Exceptions import (NotFound,
@@ -26,9 +27,9 @@ def login():
 
     try:
         user = User.query.filter_by(email=email).first()
-    except Exception as e:
+    except Exception as ex:
         print(e)
-        raise InternalServerError("Problem retrieving user")
+        raise InternalServerError(str(ex))
 
     if not user:
         raise NotFound(f"User with email {email} not found")
@@ -50,16 +51,14 @@ def login():
         })
 
 
-@api.route("/users", methods=["POST"])
+@api.route("/auth/users", methods=["POST"])
 def new_user():
-    if request.method != 'POST':
-        return jsonify({"error": "Method not allowed!"})
-
     name = request.json.get("name", None)
     email = request.json.get("email", None)
     phone = request.json.get("phone", None)
     password = request.json.get("password", None)
     role_id = request.json.get("role_id", None)
+    public_id = randint(100, 100000)
 
     if not email or not password:
         raise BadRequest("Provide email and password")
@@ -67,29 +66,33 @@ def new_user():
     user_exist = User.query.filter_by(email=email).first()
 
     if user_exist:
-        raise ExistingResource({"error": f"""User with email {email} 
-                                          and number {phone} exist!"""})
+        raise ExistingResource(f"""User with email {email}
+                                          and number {phone} exist!""")
     else:
         user = User(name=name,
-                     email=email, phone_number=phone)
+                    email=email, phone_number=phone,
+                    public_id=public_id)
         user.set_password(password)
+        print(user.public_id)
 
     try:
-        if role_id:
-            user_r = user_role.insert().values(role_id=role_id,
-                                           user_id=user.public_id)
         User.insert(user)
+        user_r = user_role.insert().values(role_id=role_id,
+                                           user_id=user.public_id)
+        db.session.execute(user_r)
+        db.session.commit()
     except Exception as e:
         print(e)
         db.session.rollback()
-        raise InternalServerError({"error": """Database commit error.
-                                            Could not process your request!"""})
-    access_token = create_access_token(identity=user.id,
-                                       expires_delta=timedelta(hours=24))
+        raise InternalServerError(
+            "Database commit error. Could not process your request!")
+    access_token = create_access_token(
+        identity=user.id,
+        expires_delta=timedelta(hours=24))
 
     return jsonify({"success": True,
                     "data": {
                         "user": user.serialize,
                         "access_token": access_token
-                        }
+                    }
                     }), 201
