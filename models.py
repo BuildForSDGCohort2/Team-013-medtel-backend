@@ -100,12 +100,13 @@ class User(db.Model):
 
     @property
     def serialize(self):
-        
+        addresses = Address.query.filter(
+                Address.users.any(public_id=self.public_id)).all()
         return {
             "id": self.public_id,
             "name": self.name,
             "email": self.email,
-            "addresses": self.addresses
+            "addresses": [address.serialize for address in addresses]
         }
 
 class Address(db.Model):
@@ -138,5 +139,5 @@ class Address(db.Model):
             "id": self.id,
             "city": self.city,
             "state": self.state,
-            "country": self.country
+            "country": self.country,
         }

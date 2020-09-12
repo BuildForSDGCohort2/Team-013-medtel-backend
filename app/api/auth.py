@@ -27,9 +27,9 @@ def login():
 
     try:
         user = User.query.filter_by(email=email).first()
-    except Exception as e:
+    except Exception as ex:
         print(e)
-        raise InternalServerError("Problem retrieving user")
+        raise InternalServerError(str(ex))
 
     if not user:
         raise NotFound(f"User with email {email} not found")
@@ -53,9 +53,6 @@ def login():
 
 @api.route("/auth/users", methods=["POST"])
 def new_user():
-    if request.method != 'POST':
-        return jsonify({"error": "Method not allowed!"})
-
     name = request.json.get("name", None)
     email = request.json.get("email", None)
     phone = request.json.get("phone", None)
