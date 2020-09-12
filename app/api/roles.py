@@ -13,7 +13,7 @@ from Exceptions import (NotFound,
 def roles_collection():
     roles = Role.query.all()
 
-    return jsonify([user.serialize for user in users])
+    return jsonify([role.serialize for role in roles])
 
 
 @api.route("/roles/<role_id>", methods=["GET"])
