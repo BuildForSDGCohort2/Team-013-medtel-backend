@@ -13,12 +13,13 @@ from Exceptions import (NotFound,
                         InternalServerError)
 
 
-def admin_required(role_name):
+def role_required(role_name):
     def is_auth(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             user_id = get_jwt_identity()
             role = Role.query.filter(Role.users.any(public_id=user_id)).first()
+            print(role.name)
             if role.name != role_name:
                 raise Forbiden(f"User have insufficient permission")
             else:

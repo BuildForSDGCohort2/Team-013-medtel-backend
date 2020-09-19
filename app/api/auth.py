@@ -17,7 +17,7 @@ from . import api
 from models import User, user_role, Role
 
 
-@api.route("/users/auth", methods=['POST'])
+@api.route("/auth", methods=['POST'])
 def login():
     email = request.json.get("email", None)
     password = request.json.get("password", None)

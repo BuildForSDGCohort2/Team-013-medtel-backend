@@ -5,7 +5,7 @@ from Exceptions import NotFound
 from flask_jwt_extended import (
     jwt_required,
 )
-from app.auth_helpers import admin_required
+from app.auth_helpers import role_required
 from Exceptions import (NotFound,
                         UnAuthorized, BadRequest,
                         ExistingResource,
