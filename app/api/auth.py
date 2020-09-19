@@ -14,10 +14,10 @@ from Exceptions import (NotFound,
                         ExistingResource,
                         InternalServerError)
 from . import api
-from models import User, user_role, Role
+from models import User, user_role, Role, Doctor
 
 
-@api.route("/auth", methods=['POST'])
+@api.route("/users/auth", methods=['POST'])
 def login():
     email = request.json.get("email", None)
     password = request.json.get("password", None)
@@ -28,7 +28,7 @@ def login():
     try:
         user = User.query.filter_by(email=email).first()
     except Exception as ex:
-        print(e)
+        print(ex)
         raise InternalServerError(str(ex))
 
     if not user:
@@ -51,48 +51,35 @@ def login():
         })
 
 
-@api.route("/auth/users", methods=["POST"])
-def new_user():
-    name = request.json.get("name", None)
+@api.route("/doctors/auth", methods=['POST'])
+def doctor_login():
     email = request.json.get("email", None)
-    phone = request.json.get("phone", None)
     password = request.json.get("password", None)
-    role_id = request.json.get("role_id", None)
-    public_id = randint(100, 100000)
 
-    if not email or not password:
-        raise BadRequest("Provide email and password")
-
-    user_exist = User.query.filter_by(email=email).first()
-
-    if user_exist:
-        raise ExistingResource(f"""User with email {email}
-                                          and number {phone} exist!""")
-    else:
-        user = User(name=name,
-                    email=email, phone_number=phone,
-                    public_id=public_id)
-        user.set_password(password)
-        print(user.public_id)
+    if not login or not password:
+        raise BadRequest("Missing login or password")
 
     try:
-        User.insert(user)
-        user_r = user_role.insert().values(role_id=role_id,
-                                           user_id=user.public_id)
-        db.session.execute(user_r)
-        db.session.commit()
-    except Exception as e:
-        print(e)
-        db.session.rollback()
-        raise InternalServerError(
-            "Database commit error. Could not process your request!")
-    access_token = create_access_token(
-        identity=user.id,
-        expires_delta=timedelta(hours=24))
+        doctor = Doctor.query.filter_by(email=email).first()
+    except Exception as ex:
+        print(ex)
+        raise InternalServerError(str(ex))
 
-    return jsonify({"success": True,
-                    "data": {
-                        "user": user.serialize,
-                        "access_token": access_token
-                    }
-                    }), 201
+    if not doctor:
+        raise NotFound(f"User with email {email} not found")
+
+    if not doctor.check_password(password):
+        raise UnAuthorized("invalid password", 401)
+    else:
+        doctor_id = doctor.serialize.get("id")
+        access_token = create_access_token(identity=doctor_id,
+                                           expires_delta=timedelta(hours=24))
+
+        return jsonify({
+            "success": True,
+            "data": {
+                "access_token": access_token,
+                "user_id": doctor_id
+            }
+
+        })

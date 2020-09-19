@@ -162,6 +162,12 @@ class Doctor(db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
     profile_image = db.Column(db.String())
 
+    specializations = db.relationship("Specialization",
+                            secondary=doctor_special,
+                            back_populates="doctors",
+                            cascade="all, delete",
+                            lazy=True)
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password).decode('utf-8')
 
@@ -194,7 +200,10 @@ class Specialization(db.Model):
     __tablename__ = "specializations"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
-
+    doctors = db.relationship("Doctor",
+                            secondary=doctor_special,
+                            back_populates="specilizations",
+                            lazy=True)
     def insert(self):
         db.session.add(self)
         db.session.commit()
