@@ -35,19 +35,36 @@ This will install all of the required packages we selected within the `requireme
 - [jose](https://python-jose.readthedocs.io/en/latest/) JavaScript Object Signing and Encryption for JWTs. Useful for encoding, decoding, and verifying JWTS.
 
 ## Running the server
-
 From within the `Team-013-medtel-backend` directory, first ensure you are working using your created virtual environment.
 
 Each time you open a new terminal session, run:
-
 
 ```bash
 export FLASK_APP=run.py 
 export FLASK_ENV=development //To run the app in development mode 
 ```
 
+### Environment variables
+Add a `.env` file at the root of the project. The `.env` file should contain the following variables:
+
+***SECRET_KEY="yoursupersecretkey"*** // The app secret key
+***DATABASE_URL="xxxxxx"***  // Database URL
+
+### Database migration
+This app uses Flask-Migrate for database migration. 
+Execute the following commands to run the initial migration
+
+`flask db init` // This will add a migrations folder to the application.
+`flask db migrate` // This will generate an initial migration
+`flask db upgrade` // This will apply the migration to the database
+
+Learn More about flask-migrate ==> [Flask-Migrate](https://flask-migrate.readthedocs.io/en/latest/)
+
+### Run the app
+Execute the following command to run the app.
+`flask run`
+
 ## Endpoints
 - BASE URL: **https://medtel-team-013.herokuapp.com/api/v1/**
-
 
 **API Documentation** :https://documenter.getpostman.com/view/6911460/TVKD2chN
