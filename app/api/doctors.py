@@ -8,6 +8,7 @@ from models import (db, User, user_role, Role,
 from Exceptions import NotFound
 from flask_jwt_extended import (
     jwt_required,
+    create_access_token,
 )
 from app.auth_helpers import role_required
 from Exceptions import (NotFound,
@@ -19,25 +20,31 @@ from Exceptions import (NotFound,
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
-
 @api.route("/doctors/<doctor_id>", methods=["GET"])
-@jwt_required
 def get_doctor(doctor_id):
-    # Retrieve doctor role
-    doctor_role = Role.query.filter_by(name="doctor").first()
-
     # Get user with role doctor and Id {doctor_id}
     doctor = Doctor.query.filter_by(id=doctor_id).first()
 
     if not doctor:
         raise NotFound("User not found")
 
-    doctor_data = doctor.serialize
     return jsonify({
         "success": True,
-        "data": doctor_data
+        "data": doctor.serialize
     })
 
+@api.route("/doctors", methods=["GET"])
+def get_all_doctor():
+    # Get user with role doctor and Id {doctor_id}
+    doctors = Doctor.query.all()
+    print(doctors)
+    doctors_data = [doctor.serialize for doctor in doctors]
+
+    print(doctors_data)
+    return jsonify({
+        "success": True,
+        "data": doctors_data
+    })
 
 @api.route('/doctors', methods=["POST"])
 def register_doctor():
@@ -51,12 +58,14 @@ def register_doctor():
     if not email or not password:
         raise BadRequest("Provide email and password")
 
-    doctor_exist = User.query.filter_by(email=email).first()
+    doctor_exist = Doctor.query.filter_by(email=email).first()
 
     if doctor_exist:
         raise ExistingResource(f"""User with email {email} exist!""")
-    else:
-        doctor = Doctor(
+
+    print(doctor_exist)
+
+    doctor = Doctor(
             name=name,
             email=email,
             overview=overview,
@@ -67,15 +76,14 @@ def register_doctor():
 
     try:
         Doctor.insert(doctor)
+        access_token = create_access_token(
+        identity=doctor.id,
+        expires_delta=timedelta(hours=24))
     except Exception as e:
         print(e)
         db.session.rollback()
         raise InternalServerError(
             "Database commit error. Could not process your request!")
-
-    access_token = create_access_token(
-        identity=doctor.id,
-        expires_delta=timedelta(hours=24))
 
     return jsonify({"success": True,
                     "data": {

@@ -184,7 +184,8 @@ class Doctor(db.Model):
 
     def update(self):
         db.session.commit()
-
+    
+    @property
     def serialize(self):
         return {
             "id": self.id,
@@ -202,7 +203,7 @@ class Specialization(db.Model):
     name = db.Column(db.String(100))
     doctors = db.relationship("Doctor",
                             secondary=doctor_special,
-                            back_populates="specilizations",
+                            back_populates="specializations",
                             lazy=True)
     def insert(self):
         db.session.add(self)

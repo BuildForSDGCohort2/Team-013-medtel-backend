@@ -15,6 +15,7 @@ app = create_app(config)
 @app.errorhandler(Forbiden)
 @app.errorhandler(MethodNotAllowed)
 @app.errorhandler(InternalServerError)
+@app.errorhandler(ExistingResource)
 def api_error(error):
     payload = dict(error.payload or ())
     payload['code'] = error.status_code
