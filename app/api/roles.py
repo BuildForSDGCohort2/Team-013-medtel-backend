@@ -18,12 +18,12 @@ def roles_collection():
 
 @api.route("/roles/<role_id>", methods=["GET"])
 def get_role(role_id):
-    user = Role.query.filter_by(id=role_id).first()
+    role = Role.query.filter_by(id=role_id).first()
 
     if not role:
         raise NotFound("Role not found")
 
-    return jsonify(user.serialize)
+    return jsonify(role.serialize)
 
 
 @api.route("/roles", methods=["POST"])

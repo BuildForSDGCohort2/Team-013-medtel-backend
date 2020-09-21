@@ -5,12 +5,59 @@ from Exceptions import NotFound
 from flask_jwt_extended import (
     jwt_required,
 )
-from app.auth_helpers import admin_required
+from app.auth_helpers import role_required
 from Exceptions import (NotFound,
                         UnAuthorized, BadRequest,
                         ExistingResource,
                         InternalServerError)
 
+
+
+@api.route("/users", methods=["POST"])
+def new_user():
+    name = request.json.get("name", None)
+    email = request.json.get("email", None)
+    phone = request.json.get("phone", None)
+    password = request.json.get("password", None)
+    role_id = request.json.get("role_id", None)
+    public_id = randint(100, 100000)
+
+    if not email or not password:
+        raise BadRequest("Provide email and password")
+
+    user_exist = User.query.filter_by(email=email).first()
+
+    if user_exist:
+        raise ExistingResource(f"""User with email {email}
+                                          and number {phone} exist!""")
+    else:
+        user = User(name=name,
+                    email=email, phone_number=phone,
+                    public_id=public_id)
+        user.set_password(password)
+        print(user.public_id)
+
+    try:
+        User.insert(user)
+        user_r = user_role.insert().values(role_id=role_id,
+                                           user_id=user.public_id)
+        db.session.execute(user_r)
+        db.session.commit()
+    except Exception as e:
+        print(e)
+        db.session.rollback()
+        raise InternalServerError("Database commit error. Could not process your request!")
+    
+    access_token = create_access_token(
+        identity=user.id,
+        expires_delta=timedelta(hours=24))
+
+    return jsonify({"success": True,
+                    "data": {
+                        "user": user.serialize,
+                        "access_token": access_token
+                    }
+                    }), 201
 
 @api.route("/users", methods=["GET"])
 def users_collection():
