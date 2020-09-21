@@ -48,6 +48,7 @@ export FLASK_ENV=development //To run the app in development mode
 Add a `.env` file at the root of the project. The `.env` file should contain the following variables:
 
 ***SECRET_KEY="yoursupersecretkey"*** // The app secret key
+
 ***DATABASE_URL="xxxxxx"***  // Database URL
 
 ### Database migration
@@ -55,7 +56,9 @@ This app uses Flask-Migrate for database migration.
 Execute the following commands to run the initial migration
 
 `flask db init` // This will add a migrations folder to the application.
+
 `flask db migrate` // This will generate an initial migration
+
 `flask db upgrade` // This will apply the migration to the database
 
 Learn More about flask-migrate ==> [Flask-Migrate](https://flask-migrate.readthedocs.io/en/latest/)
