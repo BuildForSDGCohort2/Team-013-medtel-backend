@@ -4,7 +4,6 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
-from flask_seeder import FlaskSeeder
 from .config import Config
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
@@ -19,7 +18,6 @@ bcrypt = Bcrypt()
 jwt = JWTManager()
 socket_io = SocketIO()
 config = Config()
-seeder = FlaskSeeder()
 """
 Create a flask app instance with given
 configuration object, initialize extentions
@@ -52,7 +50,6 @@ def initialize_extentions(app):
     bcrypt.init_app(app)
     sqlalchemy.init_app(app)
     migrate.init_app(app, sqlalchemy)
-    seeder.init_app(app, sqlalchemy)
     socket_io.init_app(app)
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
