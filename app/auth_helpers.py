@@ -18,7 +18,7 @@ def role_required(role_name):
         @wraps(func)
         def wrapper(*args, **kwargs):
             user_id = get_jwt_identity()
-            role = Role.query.filter(Role.users.any(public_id=user_id)).first()
+            role = Role.query.filter(Role.users.any(id=user_id)).first()
             print(role.name)
             if role.name != role_name:
                 raise Forbiden(f"User have insufficient permission")

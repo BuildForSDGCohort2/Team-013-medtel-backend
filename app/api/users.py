@@ -4,6 +4,7 @@ from models import db, User, user_role, Role, Address, user_address
 from Exceptions import NotFound
 from flask_jwt_extended import (
     jwt_required,
+    create_access_token
 )
 from app.auth_helpers import role_required
 from Exceptions import (NotFound,
@@ -20,7 +21,6 @@ def new_user():
     phone = request.json.get("phone", None)
     password = request.json.get("password", None)
     role_id = request.json.get("role_id", None)
-    public_id = randint(100, 100000)
 
     if not email or not password:
         raise BadRequest("Provide email and password")
@@ -32,15 +32,14 @@ def new_user():
                                           and number {phone} exist!""")
     else:
         user = User(name=name,
-                    email=email, phone_number=phone,
-                    public_id=public_id)
+                    email=email, phone_number=phone)
         user.set_password(password)
-        print(user.public_id)
+        print(user.id)
 
     try:
         User.insert(user)
         user_r = user_role.insert().values(role_id=role_id,
-                                           user_id=user.public_id)
+                                           user_id=user.id)
         db.session.execute(user_r)
         db.session.commit()
     except Exception as e:
@@ -71,7 +70,7 @@ def users_collection():
 
 @api.route("/users/<user_id>", methods=["GET"])
 def get_user(user_id):
-    user = User.query.filter_by(public_id=user_id).first()
+    user = User.query.filter_by(id=user_id).first()
 
     if not user:
         raise NotFound("User not found")
@@ -94,9 +93,9 @@ def update_user_profile(user_id):
     state = request.json.get("state")
     country = request.json.get("country")
 
-    user = User.query.filter_by(public_id=user_id).first()
+    user = User.query.filter_by(id=user_id).first()
     address = Address.query.filter(
-        Address.users.any(public_id=user_id)).first()
+        Address.users.any(id=user_id)).first()
 
     if not user:
         raise NotFound("User not found")
@@ -111,7 +110,7 @@ def update_user_profile(user_id):
         address = Address(city=city, state=state, country=country)
         Address.insert(address)
         user_addr = user_address.insert().values(address_id=address.id,
-                                                 user_id=user.public_id)
+                                                 user_id=user.id)
         db.session.execute(user_addr)
         db.session.commit()
 

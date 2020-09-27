@@ -1,9 +1,9 @@
 # Team-013-medtel-backend
-# MEDTEL
+
 Medtel is a Telemedicine system MVP that will help health professionals to check-up patients and extend their medical expertise to areas with less physicians. Also, this app will help patients access health specialists across different regions with no transportation time or costs.
 This repository contains the code for the backend(API) of the system. 
 
-Frontend repo: https://github.com/BuildForSDGCohort2/Team-013-medtel-frontend
+Frontend repo: <https://github.com/BuildForSDGCohort2/Team-013-medtel-frontend>
 
 ## Getting Started
 
@@ -29,8 +29,7 @@ This will install all of the required packages we selected within the `requireme
 
 ##### Key Dependencies
 
-- [Flask](http://flask.pocoo.org/)  is a lightweight backend microservices framework. Flask is required to handle requests and responses.
-
+- [Flask](http://flask.pocoo.org/) is a lightweight backend microservices framework. Flask is required to handle requests and responses.
 - [SQLAlchemy](https://www.sqlalchemy.org/) and [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/2.x/) are libraries to handle the lightweight sqlite database. 
 - [jose](https://python-jose.readthedocs.io/en/latest/) JavaScript Object Signing and Encryption for JWTs. Useful for encoding, decoding, and verifying JWTS.
 

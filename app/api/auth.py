@@ -35,7 +35,7 @@ def login():
         raise NotFound(f"User with email {email} not found")
 
     if not user.check_password(password):
-        raise UnAuthorized("invalid password", 401)
+        raise UnAuthorized("invalid password")
     else:
         user_id = user.serialize.get("id")
         access_token = create_access_token(identity=user_id,

@@ -7,7 +7,7 @@ from random import randint
 user_role = db.Table(
     "user_role",
     db.Column("user_id", db.Integer,
-              db.ForeignKey("users.public_id"),
+              db.ForeignKey("users.id"),
               primary_key=True),
     db.Column("role_id", db.Integer,
               db.ForeignKey("roles.id"),
@@ -28,7 +28,7 @@ doctor_special = db.Table(
 user_address = db.Table(
     "user_address",
     db.Column("user_id", db.Integer,
-              db.ForeignKey("users.public_id"),
+              db.ForeignKey("users.id"),
               primary_key=True),
     db.Column("address_id", db.Integer,
               db.ForeignKey("addresses.id"),
@@ -65,12 +65,26 @@ class Role(db.Model):
             "name": self.name,
         }
 
+class History(db.Model):
+    __tablename__="history"
+    id = db.Column(db.Integer, primary_key=True)
+    message = db.Column(db.String())
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    doctor_id = db.Column(db.Integer, db.ForeignKey("doctors.id"))
+    create_at = db.Column(db.DateTime(), default=datetime.utcnow())
+
+    @property
+    def serialize(self):
+        return {
+            "id": self.id,
+            "message": self.message,
+            "date": self.message
+        }
 
 class User(db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
-    public_id = db.Column(db.Integer, unique=True)
     name = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     profile_image = db.Column(db.String())
@@ -107,11 +121,11 @@ class User(db.Model):
     @property
     def serialize(self):
         addresses = Address.query.filter(
-            Address.users.any(public_id=self.public_id)).all()
+            Address.users.any(id=self.id)).all()
         role = Role.query.filter(
-            Role.users.any(public_id=self.public_id)).first()
+            Role.users.any(id=self.id)).first()
         return {
-            "id": self.public_id,
+            "id": self.id,
             "name": self.name,
             "email": self.email,
             "addresses": [address.serialize for address in addresses],
@@ -167,6 +181,7 @@ class Doctor(db.Model):
                             back_populates="doctors",
                             cascade="all, delete",
                             lazy=True)
+    history = db.relationship('History', backref='doctors', lazy=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password).decode('utf-8')

@@ -1,16 +1,16 @@
-from flask import jsonify, request
 import logging
-from . import api
-from models import (db, User, user_role, Role,
-                    Address, user_address, Doctor,
-                    Qualification, HospitalAffiliate,
-                    Specialization)
-from Exceptions import NotFound
+from datetime import timedelta
+from flask import jsonify, request
 from flask_jwt_extended import (
     jwt_required,
     create_access_token,
 )
 from app.auth_helpers import role_required
+from . import api
+from models import (db, User, user_role, Role,
+                    Address, user_address, Doctor,
+                    Qualification, HospitalAffiliate,
+                    Specialization)
 from Exceptions import (NotFound,
                         UnAuthorized, BadRequest,
                         ExistingResource,
@@ -97,7 +97,7 @@ def register_doctor():
 def add_qualification():
     doctor_id = request.json.get("doctor_id")
     qualification_name = request.json.get("name")
-    institute = request, json.get('institute')
+    institute = request.json.get('institute')
     procurement_year = request.json.get("year")
 
     qualification = Qualification(doctor_id=doctor_id, name=qualification_name,
