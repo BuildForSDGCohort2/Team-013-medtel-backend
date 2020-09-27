@@ -4,6 +4,14 @@ from flask import jsonify
 
 
 class AppErrorRequest(Exception):
+    """
+    Extends python base exception and convert to clean json error message
+    Attributes:
+    message (str): Error message of exception
+    success (bool): True/False to indicate if request was successful
+    status_code (int): http status code for error
+    payload (dict): dictionary that contains exception data
+    """
     status_code = 400
 
     def __init__(self, message, success=False, status_code=None, payload=None):
