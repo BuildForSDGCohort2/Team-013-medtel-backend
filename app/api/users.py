@@ -6,6 +6,7 @@ from flask_jwt_extended import (
     jwt_required,
     create_access_token
 )
+from datetime import timedelta
 from app.auth_helpers import role_required
 from Exceptions import (NotFound,
                         UnAuthorized, BadRequest,
