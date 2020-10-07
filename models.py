@@ -21,8 +21,7 @@ doctor_special = db.Table(
               primary_key=True),
     db.Column("special_id", db.Integer,
               db.ForeignKey("specializations.id"),
-              primary_key=True),
-    db.Column("id", db.Integer, primary_key=True)
+              primary_key=True)
 )
 
 user_address = db.Table(
@@ -120,10 +119,8 @@ class User(db.Model):
 
     @property
     def serialize(self):
-        addresses = Address.query.filter(
-            Address.users.any(id=self.id)).all()
-        role = Role.query.filter(
-            Role.users.any(id=self.id)).first()
+        addresses = Address.query.filter(Address.users.any(id=self.id)).all()
+        role = Role.query.filter(Role.users.any(id=self.id)).first()
         return {
             "id": self.id,
             "name": self.name,
@@ -202,12 +199,16 @@ class Doctor(db.Model):
     
     @property
     def serialize(self):
+        specializations = Specialization.query.filter(
+            Specialization.doctors.any(id=self.id)).all()
+        spec = [spec.serialize for spec in specializations]
         return {
             "id": self.id,
             "name": self.name,
             "overview": self.overview,
             "practicing_from": self.practicing_from,
             "email": self.email,
+            "speciality": spec[0]["name"],
             "profile_image": self.profile_image
         }
 

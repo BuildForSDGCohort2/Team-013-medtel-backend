@@ -3,3 +3,7 @@ The video on Data Protection and Recoverability
 
 admin
 Weezybaby/4u
+
+This app will allow users to contact and connect with health practitioners in order to have access to best health consultation services. 
+We will have an interface which will
+ enable users to easily search doctors, and a filtering functionality depending on the doctors specialty, location and experience.

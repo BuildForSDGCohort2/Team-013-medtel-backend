@@ -9,7 +9,7 @@ from app.auth_helpers import role_required
 from . import api
 from models import (db, User, user_role, Role,
                     Address, user_address, Doctor,
-                    Qualification, HospitalAffiliate,
+                    Qualification, HospitalAffiliate,doctor_special,
                     Specialization)
 from Exceptions import (NotFound,
                         UnAuthorized, BadRequest,
@@ -35,12 +35,10 @@ def get_doctor(doctor_id):
 
 @api.route("/doctors", methods=["GET"])
 def get_all_doctor():
-    # Get user with role doctor and Id {doctor_id}
     doctors = Doctor.query.all()
-    print(doctors)
+
     doctors_data = [doctor.serialize for doctor in doctors]
 
-    print(doctors_data)
     return jsonify({
         "success": True,
         "data": doctors_data
@@ -62,8 +60,6 @@ def register_doctor():
 
     if doctor_exist:
         raise ExistingResource(f"""User with email {email} exist!""")
-
-    print(doctor_exist)
 
     doctor = Doctor(
             name=name,
@@ -91,6 +87,31 @@ def register_doctor():
                         "access_token": access_token
                     }
                     }), 201
+
+
+@api.route("/doctors/<doctor_id>/specialities/<special_id>")
+def assign_speciality(doctor_id, special_id):
+    """
+    Args:
+        doctor_id (Int):
+        special_id (Int):
+    """
+    try:
+        doctor_spec = doctor_special.insert().values(doctor_id=doctor_id,
+                                           special_id=special_id)
+        db.session.execute(doctor_spec)
+        db.session.commit()
+    except Exception as e:
+        print(e)
+        db.session.rollback()
+        raise InternalServerError("Database commit error. Could not process your request!")
+
+    speciality = Specialization.query.filter_by(id=special_id).first()
+    doctor = Doctor.query.filter_by(id=doctor_id).first()
+    return jsonify({
+        "success": True,
+        "message": f"Speciality  Assigned to doctor"
+    })
 
 
 @api.route("/doctors/qualifications", methods=["POST"])
@@ -137,7 +158,7 @@ def add_affiliate_hospital():
         "data": hospital.serialize
     })
 
-@api.route("/doctors/specialization", methods=["POST"])
+@api.route("/specialization", methods=["POST"])
 def add_specialization():
     name = request.json.get("name")
     special = Specialization(name=name)
